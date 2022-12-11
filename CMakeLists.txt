@@ -1,6 +1,11 @@
 
 project(LC_html_simple LANGUAGES CXX)
 
+set(LC_HTML_SIMPLE_MAIN_PROJECT OFF)
+if((CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR) AND (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME))
+	set(LC_HTML_SIMPLE_MAIN_PROJECT ON)
+endif()
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -58,4 +63,6 @@ set_target_properties(
 		CXX_EXTENSIONS OFF
 )
 
-add_subdirectory(tmp)
+if (LC_HTML_SIMPLE_MAIN_PROJECT)
+	add_subdirectory(tmp)
+endif()
