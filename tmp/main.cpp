@@ -54,6 +54,8 @@ Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae,amet?)qwfe"
 	std::ofstream file("test.html");
 	file << div->to_html(HtmlGenerationOptions{.colored=false, .formatted=false});
 
+	std::cout << to_html(div->children, {.colored=true, .formatted=true}) << std::endl;
+
 
 	return 0;
 }

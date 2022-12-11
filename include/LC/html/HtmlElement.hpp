@@ -1,5 +1,7 @@
 #pragma once
 
+#include <concepts>
+
 #include <LC/html/Element.hpp>
 #include <LC/html/attributes.hpp>
 
@@ -365,4 +367,15 @@ namespace lc::html
 		bool breaksLineBefore() const override { return false; }
 		bool breaksLineAfter() const override { return true; }
 	};
+
+	template <std::derived_from<Node> _Node>
+	string to_html(const vector<shared_ptr<_Node>>& elements, const HtmlGenerationOptions& options = {})
+	{
+		HtmlDivElement div;
+		for (auto& element : elements)
+			div.children.push_back(element);
+		HtmlGenerationEnv env(options);
+		env.indentLevel = -1;
+		return div.innerHtml(env);
+	}
 }
