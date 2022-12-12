@@ -348,6 +348,26 @@ namespace lc::html
 		shared_ptr<Node> clone() const override { return make_shared<HtmlAddressElement>(*this); }
 	};
 
+	class HtmlBrElement : public HtmlElement
+	{
+	public:
+		HtmlBrElement() : HtmlElement("br") {
+			this->formattable = false;
+			this->compactable = false;
+			this->finalSlash = true;
+			this->blockFormatted = false;
+		}
+		HtmlBrElement(HtmlBrElement&&) = default;
+		HtmlBrElement(const HtmlBrElement&) = default;
+
+		static shared_ptr<HtmlBrElement> create() { return make_shared<HtmlBrElement>(); }
+
+		shared_ptr<Node> clone() const override { return make_shared<HtmlBrElement>(*this); }
+
+		bool breaksLineBefore() const override { return false; }
+		bool breaksLineAfter() const override { return true; }
+	};
+
 	class HtmlHrElement : public HtmlElement
 	{
 	public:
@@ -364,8 +384,25 @@ namespace lc::html
 
 		shared_ptr<Node> clone() const override { return make_shared<HtmlHrElement>(*this); }
 
-		bool breaksLineBefore() const override { return false; }
+		bool breaksLineBefore() const override { return true; }
 		bool breaksLineAfter() const override { return true; }
+	};
+
+	class HtmlAElement : public HtmlElement
+	{
+	public:
+		HtmlAElement() : HtmlElement("a") {
+			this->formattable = true;
+			this->compactable = false;
+			this->finalSlash = true;
+			this->blockFormatted = false;
+		}
+		HtmlAElement(HtmlAElement&&) = default;
+		HtmlAElement(const HtmlAElement&) = default;
+
+		static shared_ptr<HtmlAElement> create() { return make_shared<HtmlAElement>(); }
+
+		shared_ptr<Node> clone() const override { return make_shared<HtmlAElement>(*this); }
 	};
 
 	template <std::derived_from<Node> _Node>
