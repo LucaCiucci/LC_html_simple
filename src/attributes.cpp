@@ -31,28 +31,38 @@ namespace lc::html
 		return this->find(key) != this->end();
 	}
 
-	string AttributesMap::to_html(bool colored) const
+	void AttributesMap::to_html(string& buff, bool colored) const
 	{
 		using namespace std::string_literals;
 
-		vector<string> attributes_strings;
-		for (const auto& [key, value] : *this)
+		for (auto it = this->begin(); it != this->end(); ++it)
 		{
+			const auto& [key, value] = *it;
 			const string keyStr = lc::colorize(key, lc::terminal_themes::dark::attribute, colored);
 
-			string str = value.value;
-			if (str.empty())
-				attributes_strings.push_back(key);
+			if (value.value.empty())
+				buff += key;
 
+			string str = value.value;
 			//lc::replace_all(str, "\"", "&quot;");
 			lc::replace_all(str, R"(\)", R"(\\)");
 			lc::replace_all(str, R"(")", R"(\")");
 			const string valueStr = lc::colorize("\""s + str + "\"", lc::terminal_themes::dark::string, colored);
 
-			attributes_strings.push_back(std::format("{}={}", keyStr, valueStr));
-		}
+			buff += keyStr;
+			buff += '=';
+			buff += valueStr;
 
-		return lc::join(attributes_strings, " ");
+			if (std::next(it) != this->end())
+				buff += ' ';
+		}
+	}
+
+	string AttributesMap::to_html(bool colored) const
+	{
+		string buff;
+		this->to_html(buff, colored);
+		return buff;
 	}
 
 	string to_html(const AttributesMap& attributes, bool colored)

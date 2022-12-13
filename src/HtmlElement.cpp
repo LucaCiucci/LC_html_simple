@@ -63,22 +63,57 @@ namespace lc::html
 		const auto gray = [&](const string& str) { return colorize(str, TerminalColor::GRAY, env.options.colored); };
 		const string tag = colorize(this->tag(), terminal_themes::dark::keyword, env.options.colored);
 
+		const auto writeAttributes = [&](string& buff) {
+			if (this->attributes.empty())
+				return;
+			buff += " ";
+			this->attributes.to_html(buff, env.options.colored);
+		};
+
 		const string innerHtml = this->innerHtml(env);
 		string indent = "";
 		if (formatted)
 			for (int i = 0; i < env.indentLevel; i++)
 				indent += env.options.indent;
-		string attributes = this->attributes.to_html(env.options.colored);
-		if (!attributes.empty())
-			attributes = " " + attributes;
+		//string attributes = this->attributes.to_html(env.options.colored);
 		if (innerHtml.empty() && this->compactable)
-			buff += indent + gray("<") + tag + attributes + (this->finalSlash ? gray(" /") : ""s) + gray(">");
+		{
+			buff += indent;
+			buff += gray("<");
+			buff += tag;
+			writeAttributes(buff);
+			buff += (this->finalSlash ? gray(" /") : ""s);
+			buff += gray(">");
+			return;
+		}
 		else
 		{
 			if (formatted && this->blockFormatted)
-				buff += gray("<") + tag + attributes + gray(">\n") + innerHtml + "\n" + indent + gray("</") + tag + gray(">");
+			{
+				buff += gray("<");
+				buff += tag;
+				writeAttributes(buff);
+				buff += gray(">\n");
+				buff += innerHtml;
+				buff += "\n";
+				buff += indent;
+				buff += gray("</");
+				buff += tag;
+				buff += gray(">");
+				return;
+			}
 			else
-				buff += gray("<") + tag + attributes + gray(">") + innerHtml + gray("</") + tag + gray(">");
+			{
+				buff += gray("<");
+				buff += tag;
+				writeAttributes(buff);
+				buff += gray(">");
+				buff += innerHtml;
+				buff += gray("</");
+				buff += tag;
+				buff += gray(">");
+				return;
+			}
 		}
 	}
 

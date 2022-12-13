@@ -49,6 +49,7 @@ namespace lc::html
 
 		bool has(const string& key) const;
 
+		void to_html(string& buff, bool colored = false) const;
 		string to_html(bool colored = false) const;
 	};
 
