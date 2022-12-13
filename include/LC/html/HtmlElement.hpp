@@ -491,6 +491,19 @@ namespace lc::html
 		);
 	}
 
+	template <std::derived_from<HtmlElement> Element>
+	auto stringizer(Element&& _element, const std::vector<shared_ptr<Node>>& _additionalInnerHtml)
+	{
+		return stringizer(
+			std::move(_element),
+			[_additionalInnerHtml](string& buff) {
+				for (auto& element : _additionalInnerHtml)
+					if (element)
+						stringizer(*element)(buff);
+			}
+		);
+	}
+
 	/*template <std::derived_from<HtmlElement> Element>
 	auto stringizer(Element&& _element, const std::initializer_list<const HtmlElement&> _additionalInnerHtml)
 	{

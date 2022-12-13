@@ -62,14 +62,7 @@ Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae,amet?)qwfe"
 			element.attributes["ciao"] = "ciao";
 			return element;
 		}(),
-		stringizer(
-			HtmlSpanElement(),
-			std::forward_as_tuple(
-				string("ciao"),
-				string(" a tutti"),
-				" quanti sono?"
-			)
-		)
+		div2->children
 	));
 	std::cout << r << std::endl;
 
