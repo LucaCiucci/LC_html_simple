@@ -56,6 +56,27 @@ Lorem ipsum dolor sit amet consectetur, adipisicing elit. Recusandae,amet?)qwfe"
 
 	std::cout << to_html(div->children, {.colored=true, .formatted=true}) << std::endl;
 
+	auto r = stringize(stringizer(
+		[]() {
+			HtmlDivElement element;
+			element.attributes["ciao"] = "ciao";
+			return element;
+		}(),
+		stringizer(
+			HtmlSpanElement(),
+			std::forward_as_tuple(
+				string("ciao"),
+				string(" a tutti"),
+				" quanti sono?"
+			)
+		)
+	));
+	std::cout << r << std::endl;
+
+	using T = std::remove_cvref_t<const char(&)[4]>;
+
+	constexpr bool aaads = HtmlElementDerivedOrString<const char(&)[4]>;
+
 
 	return 0;
 }

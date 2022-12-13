@@ -123,4 +123,50 @@ namespace lc::html
 		this->outerHtml(buff, env);
 		return buff;
 	}
+
+	void HtmlElement::openingTag(string& buff, bool colored) const
+	{
+		using namespace std::string_literals;
+		const auto gray = [&](const string& str) { return colorize(str, TerminalColor::GRAY, colored); };
+		const string tag = colorize(this->tag(), terminal_themes::dark::keyword, colored);
+
+		const auto writeAttributes = [&](string& buff) {
+			if (this->attributes.empty())
+				return;
+			buff += " ";
+			this->attributes.to_html(buff, colored);
+		};
+
+		//string attributes = this->attributes.to_html(env.options.colored);
+		buff += gray("<");
+		buff += tag;
+		writeAttributes(buff);
+		buff += (this->finalSlash ? gray(" /") : ""s);
+		buff += gray(">");
+	}
+	
+	string HtmlElement::openingTag(bool colored) const
+	{
+		string buff;
+		this->openingTag(buff, colored);
+		return buff;
+	}
+
+	void HtmlElement::closingTag(string& buff, bool colored) const
+	{
+		using namespace std::string_literals;
+		const auto gray = [&](const string& str) { return colorize(str, TerminalColor::GRAY, colored); };
+		const string tag = colorize(this->tag(), terminal_themes::dark::keyword, colored);
+
+		buff += gray("</");
+		buff += tag;
+		buff += gray(">");
+	}
+
+	string HtmlElement::closingTag(bool colored) const
+	{
+		string buff;
+		this->closingTag(buff, colored);
+		return buff;
+	}
 }

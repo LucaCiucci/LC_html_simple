@@ -1,9 +1,13 @@
 #pragma once
 
 #include <concepts>
+#include <span>
 
 #include <LC/html/Element.hpp>
 #include <LC/html/attributes.hpp>
+
+#include "TextNode.hpp"
+#include "RawContentNode.hpp"
 
 namespace lc::html
 {
@@ -31,6 +35,12 @@ namespace lc::html
 		string innerHtml(HtmlGenerationEnv& env) const;
 		void outerHtml(string& buff, HtmlGenerationEnv& env) const;
 		string outerHtml(HtmlGenerationEnv& env) const;
+
+		void openingTag(string& buff, bool colored = false) const;
+		string openingTag(bool colored = false) const;
+
+		void closingTag(string& buff, bool colored = false) const;
+		string closingTag(bool colored = false) const;
 
 		bool formattable = true;
 		bool compactable = false;
@@ -417,4 +427,85 @@ namespace lc::html
 		env.indentLevel = -1;
 		return div.innerHtml(env);
 	}
+
+	template <class T> struct is_html_serializable : std::false_type {};
+	template <std::derived_from<HtmlElement> T> struct is_html_serializable<T> : std::true_type {};
+	template <> struct is_html_serializable<TextNode> : std::true_type {};
+	template <> struct is_html_serializable<RawContentNode> : std::true_type {};
+
+	template <class T>
+	concept HtmlSerializable = is_html_serializable<T>::value;
+
+	//template <std::derived_from<HtmlElement> Element>
+	//Element with()
+
+	template <std::derived_from<HtmlElement> Element, typename Functor = decltype([](string& buff) {})>
+	requires std::invocable<Functor, string&>
+	auto stringizer(Element&& _element, Functor&& _additionalInnerHtmlSerializer = Functor())
+	{
+		return [
+			element = std::move(_element),
+			additionalInnerHtmlSerializer = std::move(_additionalInnerHtmlSerializer)
+		](string& buff) //mutable
+		{
+			element.openingTag(buff);
+			if (!element.children.empty())
+				buff += to_html(element.children);
+			additionalInnerHtmlSerializer(buff);
+			element.closingTag(buff);
+		};
+	}
+
+	template <std::derived_from<HtmlElement> Element>
+	auto stringizer(Element&& _element, const string& _additionalInnerHtml)
+	{
+		return stringizer(std::move(_element), [&_additionalInnerHtml](string& buff) {
+			buff += _additionalInnerHtml;
+		});
+	}
+
+	auto stringizer(string&& _str)
+	{
+		return [str = std::move(_str)](string& buff) {
+			buff += str;
+		};
+	}
+
+	template <class T>
+	concept HtmlElementDerivedOrString =
+		std::derived_from<std::remove_cvref_t<T>, HtmlElement> ||
+		std::same_as<std::remove_cvref_t<T>, string> ||
+		std::convertible_to<std::remove_cvref_t<T>, const char*>;
+
+	template <std::derived_from<HtmlElement> Element, HtmlElementDerivedOrString... ChildElem>
+	auto stringizer(Element&& _element, std::tuple<ChildElem...>&& _additionalInnerHtml)
+	{
+		return stringizer(
+			std::move(_element),
+			[additionalInnerHtml = std::move(_additionalInnerHtml)](string& buff) {
+				std::apply([&buff](auto&... child) {
+					//(buff += to_html({ child }), ...);
+					(stringizer(std::move(child))(buff), ...);
+				}, additionalInnerHtml);
+			}
+		);
+	}
+
+	/*template <std::derived_from<HtmlElement> Element>
+	auto stringizer(Element&& _element, const std::initializer_list<const HtmlElement&> _additionalInnerHtml)
+	{
+		return html_serializer(std::move(_element), [&_additionalInnerHtml](string& buff) {
+			for (auto& element : _additionalInnerHtml)
+				stringizer(_additionalInnerHtml)(buff);
+		});
+	}*/
+
+	template <class Functor>
+	string stringize(const Functor& functor)
+	{
+		string buff;
+		functor(buff);
+		return buff;
+	}
+
 }
