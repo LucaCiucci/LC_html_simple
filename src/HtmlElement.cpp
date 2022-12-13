@@ -6,12 +6,12 @@
 
 namespace lc::html
 {
-	string HtmlElement::to_html(HtmlGenerationEnv& env) const
+	void HtmlElement::to_html(string& buff, HtmlGenerationEnv& env) const
 	{
-		return this->outerHtml(env);
+		this->outerHtml(buff, env);
 	}
 
-	string HtmlElement::innerHtml(HtmlGenerationEnv& env) const
+	void HtmlElement::innerHtml(string& buff, HtmlGenerationEnv& env) const
 	{
 		using namespace std::string_literals;
 		vector<string> lines;
@@ -27,7 +27,7 @@ namespace lc::html
 					lines.push_back(currLine);
 				currLine = "";
 			}
-			currLine += child->to_html(env);
+			child->to_html(currLine, env);
 			if (child->breaksLineAfter())
 			{
 				lines.push_back(currLine);
@@ -42,14 +42,21 @@ namespace lc::html
 				indent += env.options.indent;
 		if (formatted && this->blockFormatted)
 			if (!lines.empty())
-				return indent + join(lines, "\n"s + indent);
+				buff += indent + join(lines, "\n"s + indent);
 			else
-				return "";
+				buff += "";
 		else
-			return join(lines, "");
+			buff += join(lines, "");
 	}
 
-	string HtmlElement::outerHtml(HtmlGenerationEnv& env) const
+	string HtmlElement::innerHtml(HtmlGenerationEnv& env) const
+	{
+		string buff;
+		this->innerHtml(buff, env);
+		return buff;
+	}
+
+	void HtmlElement::outerHtml(string& buff, HtmlGenerationEnv& env) const
 	{
 		using namespace std::string_literals;
 		const bool formatted = this->formattable && env.format();
@@ -65,13 +72,20 @@ namespace lc::html
 		if (!attributes.empty())
 			attributes = " " + attributes;
 		if (innerHtml.empty() && this->compactable)
-			return indent + gray("<") + tag + attributes + (this->finalSlash ? gray(" /") : ""s) + gray(">");
+			buff += indent + gray("<") + tag + attributes + (this->finalSlash ? gray(" /") : ""s) + gray(">");
 		else
 		{
 			if (formatted && this->blockFormatted)
-				return gray("<") + tag + attributes + gray(">\n") + innerHtml + "\n" + indent + gray("</") + tag + gray(">");
+				buff += gray("<") + tag + attributes + gray(">\n") + innerHtml + "\n" + indent + gray("</") + tag + gray(">");
 			else
-				return gray("<") + tag + attributes + gray(">") + innerHtml + gray("</") + tag + gray(">");
+				buff += gray("<") + tag + attributes + gray(">") + innerHtml + gray("</") + tag + gray(">");
 		}
+	}
+
+	string HtmlElement::outerHtml(HtmlGenerationEnv& env) const
+	{
+		string buff;
+		this->outerHtml(buff, env);
+		return buff;
 	}
 }

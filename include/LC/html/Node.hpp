@@ -53,7 +53,12 @@ namespace lc::html
 
 		virtual shared_ptr<Node> clone() const = 0;
 
-		virtual string to_html(HtmlGenerationEnv& env) const = 0;
+		virtual void to_html(string& buff, HtmlGenerationEnv& env) const = 0;
+		string to_html(HtmlGenerationEnv& env) const {
+			string buff;
+			this->to_html(buff, env);
+			return buff;
+		}
 		string to_html(const HtmlGenerationOptions& options = {}) const {
 			HtmlGenerationEnv env(options);
 			return this->to_html(env);

@@ -12,7 +12,7 @@ namespace lc::html
 		return make_shared<TextNode>(*this);
 	}
 
-	string TextNode::to_html(HtmlGenerationEnv& env) const
+	void TextNode::to_html(string& buff, HtmlGenerationEnv& env) const
 	{
 		auto lines = splitString(this->textContent, "\n");
 		if (env.format())
@@ -24,6 +24,6 @@ namespace lc::html
 				for (auto it = std::next(lines.begin()); it != lines.end(); it++)
 					*it = indent + *it;
 		}
-		return escapeHtml(join(lines, "\n"), env.options.colored);
+		buff += escapeHtml(join(lines, "\n"), env.options.colored);
 	}
 }

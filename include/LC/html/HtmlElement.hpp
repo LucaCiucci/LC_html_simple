@@ -22,12 +22,14 @@ namespace lc::html
 		shared_ptr<Node> clone() const override { return make_shared<HtmlElement>(*this); }
 
 		using Element::to_html;
-		string to_html(HtmlGenerationEnv& env) const override final;
+		void to_html(string& buff, HtmlGenerationEnv& env) const override final;
 
 		bool breaksLineBefore() const override { return this->blockFormatted; }
 		bool breaksLineAfter() const override { return this->blockFormatted; }
 
+		void innerHtml(string& buff, HtmlGenerationEnv& env) const;
 		string innerHtml(HtmlGenerationEnv& env) const;
+		void outerHtml(string& buff, HtmlGenerationEnv& env) const;
 		string outerHtml(HtmlGenerationEnv& env) const;
 
 		bool formattable = true;

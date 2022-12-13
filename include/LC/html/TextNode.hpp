@@ -24,7 +24,7 @@ namespace lc::html
 		shared_ptr<Node> clone() const override;
 
 		using Node::to_html;
-		string to_html(HtmlGenerationEnv& env) const override;
+		void to_html(string& buff, HtmlGenerationEnv& env) const override;
 
 		string textContent;
 
