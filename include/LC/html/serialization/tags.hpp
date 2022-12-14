@@ -63,6 +63,4 @@ static string str; // !!! static ?!?!?!
 		buff << name;
 		buff << ">";
 	}
-
-	class 
 }
